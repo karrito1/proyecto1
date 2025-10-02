@@ -1,0 +1,25 @@
+/* Texto de títulos */
+h1,
+h2,
+h3 {
+  color: #0c0c0c; /* Verde SENA */
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Ajuste de tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+table th,
+table td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+}
+
+/* Hover filas */
+table tbody tr:hover {
+  background: #e9ecef; /* gris más marcado */
+}

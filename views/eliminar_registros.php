@@ -44,8 +44,8 @@
                 text: "Esta acción marcará al empleado como INACTIVO",
                 icon: "warning",
                 showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
+                confirmButtonColor: "#dc3545",
+                cancelButtonColor: "#007bff",
                 confirmButtonText: "Sí, eliminar"
             }).then((result) => {
                 if (result.isConfirmed) {

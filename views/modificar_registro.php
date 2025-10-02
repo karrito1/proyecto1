@@ -125,45 +125,61 @@ $mysql->desconectar();
             <div class="alert alert-danger text-center">Empleado no encontrado</div>
         <?php endif; ?>
     </div>
-
     <script>
         document.getElementById("formModificar")?.addEventListener("submit", function(e) {
             e.preventDefault();
             const form = this;
             const formData = new FormData(form);
 
-            fetch(form.action, {
-                    method: "POST",
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "ok") {
-                        Swal.fire({
-                            icon: "success",
-                            title: "Modificado",
-                            text: data.message,
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => window.location.href = "usuarios.php");
-                    } else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Error",
-                            text: data.message
+            Swal.fire({
+                title: "¿Confirmar acción?",
+                text: "¿Deseas guardar los cambios?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Sí, guardar",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#28a745", 
+                cancelButtonColor: "#6c757d", 
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(form.action, {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === "ok") {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "¡Guardado!",
+                                    text: data.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => window.location.href = "usuarios.php");
+                            } else {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Error",
+                                    text: data.message
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error inesperado",
+                                text: "No se pudo procesar la solicitud"
+                            });
                         });
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error inesperado",
-                        text: "No se pudo procesar la solicitud"
-                    });
-                });
+                }
+            });
         });
     </script>
+
+
+
 </body>
 
 </html>

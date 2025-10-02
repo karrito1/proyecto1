@@ -24,6 +24,7 @@ $mysql->desconectar();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro Empleados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/estilos.css">
     <script src="https://kit.fontawesome.com/068a4d5189.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -31,7 +32,7 @@ $mysql->desconectar();
 
 <body>
 
-    <div class="container-fluid row" style="background-color: #73b473ff;">
+    <div class="container-fluid row" style="background-color: #f8f9fa;">
         <h1 class="text-center">DATOS REGISTRO</h1>
 
         <!-- FORMULARIO DE REGISTRO -->
@@ -171,7 +172,7 @@ $mysql->desconectar();
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="./modificar_registro.php?idempleados=<?= $fila['id'] ?>" class="btn btn-sm btn-warning">
+                                    <a href="./modificar_registro.php?idempleados=<?= $fila['id'] ?>" class="btn btn-sm btn-primary">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
                                     <a href="./eliminar_registros.php?idempleados=<?= $fila['id'] ?>" class="btn btn-sm btn-danger">
@@ -208,7 +209,7 @@ $mysql->desconectar();
                             ?>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-sm btn-success">
+                    <button type="submit" class="btn btn-sm btn-danger">
                         <i class="fa-solid fa-file-pdf"></i> PDF por Departamento
                     </button>
                 </form>
@@ -237,30 +238,56 @@ $mysql->desconectar();
         </div>
     </div>
     <script>
-        document.getElementById("formRegistro").addEventListener("submit", function(e) {
+        document.getElementById("formRegistro")?.addEventListener("submit", function(e) {
             e.preventDefault();
-
-            const formData = new FormData(this);
+            const form = this;
+            const formData = new FormData(form);
             formData.append("btn_registrar", "ok");
 
-            fetch("../controller/registrousuarios.php", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        Swal.fire("Éxito", data.message, "success").then(() => {
-                            location.reload();
+            Swal.fire({
+                title: "¿Confirmar registro?",
+                text: "Se guardará un nuevo usuario en el sistema",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Sí, registrar",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#28a745",
+                cancelButtonColor: "#6c757d",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch("../controller/registrousuarios.php", {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === "success") {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "¡Registrado!",
+                                    text: data.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => location.reload());
+                            } else {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "Error",
+                                    text: data.message
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Error en la petición:", err);
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error inesperado",
+                                text: "No se pudo conectar con el servidor"
+                            });
                         });
-                    } else {
-                        Swal.fire("Error", data.message, "error");
-                    }
-                })
-                .catch(err => {
-                    console.error("Error en la petición:", err);
-                    Swal.fire("Error", "No se pudo conectar con el servidor", "error");
-                });
+                }
+            });
         });
     </script>
 
