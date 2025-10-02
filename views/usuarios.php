@@ -32,7 +32,7 @@ $mysql->desconectar();
 
 <body>
 
-    <div class="container-fluid row" style="background-color: #f8f9fa;">
+    <div class="container-fluid row" style="background-color: #008000;">
         <h1 class="text-center">DATOS REGISTRO</h1>
 
         <!-- FORMULARIO DE REGISTRO -->
@@ -135,25 +135,24 @@ $mysql->desconectar();
                         <?php
                         $mysql->conectar();
                         $consulta = "SELECT  
-                    e.idempleados AS id,
-                    e.nombreEmpleado AS nombre,
-                    e.numeroDocumento AS documento,
-                    e.fechaIngreso AS fecha_ingreso,
-                    e.correo AS correo,
-                    e.telefono AS telefono,
-                    e.salario AS salario,
-                    e.estado AS estado,
-                    c.nombreCargo AS cargo,
-                    d.nombreDepartamento AS departamento,
-                    e.imagen AS imagen 
-                 FROM empleados e
-                 LEFT JOIN cargo c 
-                    ON e.cargo_idcargo = c.idcargo    
-                 LEFT JOIN departamento d 
-                    ON e.departamento_iddepartamento = d.iddepartamento";
+    e.idempleados AS id,
+    e.nombreEmpleado AS nombre,
+    e.numeroDocumento AS documento,
+    e.fechaIngreso AS fecha_ingreso,
+    e.correo AS correo,
+    e.telefono AS telefono,
+    e.salario AS salario,
+    e.estado AS estado,
+    c.nombreCargo AS cargo,
+    d.nombreDepartamento AS departamento,
+    e.imagen AS imagen 
+ FROM empleados e
+ LEFT JOIN cargo c ON e.cargo_idcargo = c.idcargo    
+ LEFT JOIN departamento d ON e.departamento_iddepartamento = d.iddepartamento";
+
                         $resultado = $mysql->efectuarConsulta($consulta);
                         while ($fila = mysqli_fetch_assoc($resultado)) { ?>
-                            <tr>
+                            <tr data-id="<?= $fila['id'] ?>">
                                 <td><?= $fila['id'] ?></td>
                                 <td><?= $fila['cargo'] ?></td>
                                 <td><?= $fila['departamento'] ?></td>
@@ -172,31 +171,39 @@ $mysql->desconectar();
                                     <?php endif; ?>
                                 </td>
                                 <td>
+                                    <!-- Botón Editar -->
                                     <a href="./modificar_registro.php?idempleados=<?= $fila['id'] ?>" class="btn btn-sm btn-primary">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <a href="./eliminar_registros.php?idempleados=<?= $fila['id'] ?>" class="btn btn-sm btn-danger">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </a>
+                                    <!-- Botón Eliminar -->
+                                    <button class="btn btn-danger btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEliminar"
+                                        data-nombre="<?= $fila['nombre'] ?>"
+                                        data-documento="<?= $fila['documento'] ?>">
+                                        <i class="fa-solid fa-user-slash"></i>
+                                    </button>
+
+
                                 </td>
                             </tr>
                         <?php }
-                        $mysql->desconectar(); ?>
+                        $mysql->desconectar();
+                        ?>
                     </tbody>
 
                 </table>
+                <!-- Botones de acciones -->
+                <div class="d-flex gap-2 mb-4">
+                    <form method="post" action="generar_Pdf.php" target="_blank" class="m-0">
+                        <input type="hidden" name="btnimprimirpdf" value="ok">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fa-solid fa-file-pdf"></i> PDF
+                        </button>
+                    </form>
 
-
-                <form method="post" action="generar_Pdf.php" target="_blank">
-                    <input type="hidden" name="btnimprimirpdf" value="ok">
-                    <button type="submit" class="btn btn-sm btn-danger">
-                        <i class="fa-solid fa-file-pdf"></i> PDF
-                    </button>
-                </form>
-                <form method="post" action="pdfDepartamento.php" target="_blank">
-                    <div class="mb-3">
-                        <label for="departamento" class="form-label">PDF por Departamento</label>
-                        <select name="departamento" id="departamento" class="form-select form-select-sm" required>
+                    <form method="post" action="pdfDepartamento.php" target="_blank" class="m-0">
+                        <select name="departamento" id="departamento" class="form-select form-select-sm me-2" required style="width: auto; min-width: 180px;">
                             <option value="">Seleccione...</option>
                             <?php
                             $mysql->conectar();
@@ -208,37 +215,27 @@ $mysql->desconectar();
                             $mysql->desconectar();
                             ?>
                         </select>
-                    </div>
-                    <button type="submit" class="btn btn-sm btn-danger">
-                        <i class="fa-solid fa-file-pdf"></i> PDF por Departamento
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fa-solid fa-file-pdf"></i> PDF por Departamento
+                        </button>
+                    </form>
+
+                    <button class="btn btn-primary btn-sm ms-auto" data-bs-toggle="modal" data-bs-target="#modalEstadisticas">
+                        Mostrar Estadísticas
                     </button>
-                </form>
-
-                <br>
-                <h2>Reporte de empleados</h2>
-                <button id="btnMostrarEstadisticas">Mostrar Estadisticas</button>
-
-                <div id="estadisticas" style="display:none;">
-                    <canvas id="graficoempleados" width="600" height="400"></canvas>
-                    <canvas id="graficoCargos" width="600" height="400"></canvas>
                 </div>
 
-                <script src="../public/js/grafico_empleados.js"></script>
-                <script src="../public/js/grafico_cargos.js"></script>
-                <script>
-                    document.getElementById("btnMostrarEstadisticas").addEventListener("click", function() {
-                        document.getElementById("estadisticas").style.display = "block";
-                        mostrarGraficoEmpleados();
-                        mostrarGraficoCargos();
-                    });
-                </script>
+
+                <br>
+
+
 
 
             </div>
         </div>
     </div>
     <script>
-        document.getElementById("formRegistro")?.addEventListener("submit", function(e) {
+        document.querySelector("#formRegistro")?.addEventListener("submit", function(e) {
             e.preventDefault();
             const form = this;
             const formData = new FormData(form);
@@ -249,11 +246,12 @@ $mysql->desconectar();
                 text: "Se guardará un nuevo usuario en el sistema",
                 icon: "question",
                 showCancelButton: true,
-                confirmButtonText: "Sí, registrar",
-                cancelButtonText: "Cancelar",
+                confirmButtonText: "Si, registrar",
+                cancelButtonText: "Cancelar el proceso",
                 confirmButtonColor: "#28a745",
                 cancelButtonColor: "#6c757d",
                 reverseButtons: true
+
             }).then((result) => {
                 if (result.isConfirmed) {
                     fetch("../controller/registrousuarios.php", {
@@ -278,8 +276,8 @@ $mysql->desconectar();
                                 });
                             }
                         })
-                        .catch(err => {
-                            console.error("Error en la petición:", err);
+                        .catch(errorrr => {
+                            console.error("Error en la petición:", errorrr);
                             Swal.fire({
                                 icon: "error",
                                 title: "Error inesperado",
@@ -290,6 +288,122 @@ $mysql->desconectar();
             });
         });
     </script>
+
+    <div class="modal fade" id="modalEstadisticas" tabindex="-1" aria-labelledby="modalEstadisticasLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalEstadisticasLabel">Estadisticas de Empleados</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <canvas id="graficoempleados" style="width: 100%; height: 250px;"></canvas>
+                    <canvas id="graficoCargos" style="width: 100%; height: 250px;"></canvas>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../public/js/grafico_empleados.js"></script>
+    <script src="../public/js/grafico_cargos.js"></script>
+
+    <script>
+        const modalEstadisticas = document.getElementById('modalEstadisticas');
+        modalEstadisticas.addEventListener('shown.bs.modal', function() {
+            mostrarGraficoEmpleados();
+            mostrarGraficoCargos();
+        });
+    </script>
+    <!-- Modal Eliminar -->
+    <!-- Modal Eliminar -->
+    <div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="formEliminar">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">eliminar Empleado</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="nombre" id="nombreEliminar">
+                        <input type="hidden" name="numeroDocumento" id="documentoEliminar">
+                        <p>¿Seguro que deseas poner <strong id="nombreMostrar"></strong> como <b>INACTIVO</b>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Inactivar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        let modalEliminar = document.getElementById('modalEliminar');
+
+        // Pasar datos al modal
+        modalEliminar.addEventListener('show.bs.modal', function(event) {
+            let button = event.relatedTarget;
+            let nombre = button.getAttribute('data-nombre');
+            let documento = button.getAttribute('data-documento');
+
+            document.getElementById("nombreEliminar").value = nombre;
+            document.getElementById("documentoEliminar").value = documento;
+            document.getElementById("nombreMostrar").textContent = nombre;
+        });
+
+        document.getElementById("formEliminar").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            let formData = new FormData(this);
+
+            fetch("../controller/eliminar_registro.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.carepingo === "estovapasar") {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Empleado Inactivado",
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        let documento = formData.get("numeroDocumento");
+                        let row = document.querySelector(`tr[data-documento='${documento}'] td:nth-child(10)`);
+                        if (row) row.textContent = "INACTIVO";
+
+                        let modal = bootstrap.Modal.getInstance(modalEliminar);
+                        modal.hide();
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error inesperado",
+                        text: "No se pudo procesar la solicitud"
+                    });
+                });
+        });
+    </script>
+
+
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

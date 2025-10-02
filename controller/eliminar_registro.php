@@ -18,12 +18,12 @@ if (isset($_POST['nombre']) && isset($_POST['numeroDocumento'])) {
     $conexion->desconectar();
 
     if ($resultado) {
-        echo json_encode(["status" => "success", "message" => "Empleado marcado como INACTIVO"]);
+        echo json_encode(["carepingo" => "estovapasar", "message" => "Empleado marcado como INACTIVO"]);
     } else {
-        echo json_encode(["status" => "error", "message" => "No se pudo actualizar"]);
+        echo json_encode(["carepingo" => "error", "message" => "No se pudo actualizar"]);
     }
     exit;
 }
 
-echo json_encode(["status" => "error", "message" => "Datos incompletos"]);
+echo json_encode(["carepingo" => "error", "message" => "Datos incompletos"]);
 exit;

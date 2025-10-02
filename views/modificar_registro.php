@@ -177,9 +177,6 @@ $mysql->desconectar();
             });
         });
     </script>
-
-
-
 </body>
 
 </html>
